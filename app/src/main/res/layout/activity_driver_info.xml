@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:tools="http://schemas.android.com/tools"
+android:id="@+id/activity_driver_info"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:paddingLeft="@dimen/activity_horizontal_margin"
+android:paddingRight="@dimen/activity_horizontal_margin"
+android:paddingTop="100dp"
+android:orientation="vertical"
+tools:context="apps.farebid.com.farebid.DriverInfo">
+
+<TextView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:ems="10"
+    android:text="@string/fairbid"
+    android:textAlignment="center"
+    android:selectAllOnFocus="false" />
+
+<EditText
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:inputType="textPersonName"
+    android:text=""
+    android:singleLine="true"
+    android:hint="@string/username"
+    android:ems="10"
+    android:id="@+id/editText"
+    />
+
+
+<EditText
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:inputType="textPassword"
+    android:singleLine="true"
+    android:hint="@string/password"
+    android:ems="10"
+    android:id="@+id/editText2"
+    />
+
+
+
+<Button
+    android:text="@string/login"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/btnLogin"
+    android:onClick="onLogin"
+    />
+
+</LinearLayout>

@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "807831243655",
+    "firebase_url": "https://farebid-1d28d.firebaseio.com",
+    "project_id": "farebid-1d28d",
+    "storage_bucket": "farebid-1d28d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:807831243655:android:2ca1cb911a89c09e",
+        "android_client_info": {
+          "package_name": "apps.farebid.com.farebid"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "807831243655-llsf7123soeo3hvgrpot72ko68osu45f.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDZ6jgfnCvmZ_tn75Eb2yYORCn6ByPI97I"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

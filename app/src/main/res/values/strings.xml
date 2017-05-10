@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">FareBid</string>
+    <string name="fairbid">Welcome to Fare Bid</string>
+    <string name="login">Login</string>
+    <string name="username">UserName/Email </string>
+    <string name="password">Login</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="txtSource">Source</string>
+    <string name="txtDestination">Destination</string>
+    <string name="txtBidValue">Bid Value</string>
+    <string name="ignoreBid">Ignore</string>
+    <string name="placeBid">Bid</string>
+    <string name="txtRequestTime">Ride Request Time</string>
+    <string name="txtRequestID">Request ID</string>
+
+</resources>
