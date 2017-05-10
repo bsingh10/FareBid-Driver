@@ -1,29 +1,33 @@
 package apps.farebid.com.farebid;
-import android.app.Dialog;
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.view.View.OnClickListener;
-import android.content.pm.PackageManager;
-
-import android.location.Location;
 import android.Manifest;
+import android.app.Dialog;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.Build;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
-
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
@@ -36,26 +40,12 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import android.content.Intent;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 
-
-public class MainActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MainActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,com.google.android.gms.location.LocationListener{
 
 
 
@@ -64,7 +54,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private FirebaseDatabase  mFirebaseDatabase;
     private DatabaseReference mDatabaseReference;
     private DatabaseReference mRequestDatabaseReference;
-    private ChildEventListener mChildEventListener;
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
 
@@ -81,6 +70,9 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private static final String KEY_CAMERA_POSITION = "camera_position";
     private static final String KEY_LOCATION = "location";
 
+    protected GoogleApiClient mGoogleApiClient;
+    protected LocationRequest mLocationRequest;
+
 
     protected static final String TAG = "Fairbid";
 
@@ -89,12 +81,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     public static final int RC_SIGN_IN = 1;
     private String mUsername;
     private String mUID;
-
-
-    private static final int DEFAULT_ZOOM = 15;
-    private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
-    private boolean mLocationPermissionGranted;
-
 
 
     @Override
@@ -172,11 +158,11 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
         mRequestDatabaseReference = mFirebaseDatabase.getReference().child("request");
 
-        mChildEventListener = new ChildEventListener() {
+        ChildEventListener mChildEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 RideRequest riderequest = dataSnapshot.getValue(RideRequest.class);
-                if (riderequest !=null && riderequest.getRidestatus().compareTo("R")==0) {
+                if (riderequest != null && riderequest.getRidestatus().compareTo("R") == 0) {
                     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
                     Date date = null;
                     try {
@@ -185,9 +171,9 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                         e.printStackTrace();
                     }
                     System.out.println(date);
-                    Date cdt= new Date();
-                    Long dif=cdt.getTime()- date.getTime();
-                    if ( dif< 300000) {
+                    Date cdt = new Date();
+                    Long dif = cdt.getTime() - date.getTime();
+                    if (dif < 300000) {
                         Log.i("bhupendra  date diff", String.valueOf(dif));
 
                         //mMessageAdapter.add(friendlyMessage);
@@ -208,13 +194,20 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
             }
 
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {}
-            public void onChildRemoved(DataSnapshot dataSnapshot) {}
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
-            public void onCancelled(DatabaseError databaseError) {}
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+            }
+
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+            }
+
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+            }
+
+            public void onCancelled(DatabaseError databaseError) {
+            }
         };
         mRequestDatabaseReference.addChildEventListener(mChildEventListener);
-
+        buildGoogleApiClient();
     }
     /**
      * Saves the state of the map when the activity is paused.
@@ -261,7 +254,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap map) {
         Log.i(TAG, "+onMapReady");
         mMap = map;
-        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+/*        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 
         locationListener = new LocationListener() {
             @Override
@@ -319,6 +312,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
 
         }
+        */
         Log.i(TAG, "-onMapReady");
     }
     @Override
@@ -449,6 +443,66 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 //        TextView tr=(TextView)dlg.findViewById(R.id.txtRequestTime);
 //        tr.setText(riderequest.getRidedatetime());
 //        return dlg;
+    }
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult result) {
+        Log.i(TAG, "Connection failed: ConnectionResult.getErrorCode() = " + result.getErrorCode());
+    }
+    @Override
+    public void onConnectionSuspended(int cause) {
+        Log.i(TAG, "Connection suspended");
+        mGoogleApiClient.connect();
+    }
+    public void onDisconnected() {
+        Log.i(TAG, "Disconnected");
+    }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.disconnect();
+        }
+    }
+    @Override
+    public void onConnected(Bundle connectionHint) {
+        mLocationRequest = LocationRequest.create();
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setInterval(1000);
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient,mLocationRequest,this);
+
+    }
+    @Override
+    public void onLocationChanged(Location location) {
+        Log.i(TAG, location.toString());
+        if (mMap !=null) {
+            mMap.clear();
+            mCurrentLocation= new LatLng(location.getLatitude(),location.getLongitude());
+            mMap.addMarker(new MarkerOptions().position(mCurrentLocation));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mCurrentLocation, 15));
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient,this);
+            Log.i(TAG, "Location update removed");
+
+        }
+        //txtOutput.setText(location.toString());
+
+        //mLatitudeText.setText(String.valueOf(location.getLatitude()));
+        //mLongitudeText.setText(String.valueOf(location.getLongitude()));
+    }
+
+    protected synchronized void buildGoogleApiClient() {
+        Log.i(TAG, "+buildGoogleApiClient");
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+        Log.i(TAG, "-buildGoogleApiClient");
     }
 
 }
